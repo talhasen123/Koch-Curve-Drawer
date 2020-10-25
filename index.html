@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="koch.css">
+
+    <script id="vertex-shader" type="x-shader/x-vertex">
+
+    attribute vec4 vPosition;
+    attribute vec4 vColor;
+
+    varying vec4 fColor;
+
+    void
+    main()
+    {
+        gl_Position = vPosition;
+        fColor = vColor;
+    }
+    </script>
+
+    <script id="fragment-shader" type="x-shader/x-fragment">
+
+    precision mediump float;
+
+    varying vec4 fColor;
+    void
+    main()
+    {
+        gl_FragColor = fColor;
+    }
+    </script>
+
+    <script type="text/javascript" src="webgl-utils.js"></script>
+    <script type="text/javascript" src="initShaders.js"></script>
+    <script type="text/javascript" src="MV.js"></script>
+    <script type="text/javascript" src="hw1.js"></script>
+
+    <body>
+        <div>
+            <img src="frame.jpg" alt="Frame" id="frame">
+        </div>
+        <div id="canvas">
+            <canvas id="gl-canvas" width="1024" height="512">
+                Oops ... your browser doesn't support the HTML5 canvas element
+            </canvas>
+        </div>
+
+        <div id="canvasInfo" class="canvasInfo">
+            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-info-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg" data-toggle="popover" title="Canvas Information" data-trigger="hover"
+            data-content="Use this canvas to draw a polygon. To draw a polygon, first click a point. After clicking a point, you can draw an edge by dragging the dynamic line and then clicking a 2nd time for the other edge. This will complete an edge of the polygon. To finish a polygon drawing, connect a vertex to the first vertex of the polygon."> 
+                <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="M8.93 6.588l-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588z"/>
+                <circle cx="8" cy="4.5" r="1"/>
+              </svg>
+            <p>Canvas Info</p>
+        </div>
+
+        <div id="optionsInfo" class="optionsInfo">
+            <p>Scroll Down For Options</p>
+        </div>
+
+        <div id="options" class="options">
+
+            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-gear" fill="currentColor" xmlns="http://www.w3.org/2000/svg" data-toggle="popover" title="Option Information" data-trigger="hover"
+            data-content="You can change various options. You can change background, brush or space filling curve colors. You can fill the drawn polygon or applied rule, you can change the iteration for the applied rule and you can apply rule to polygons/delete polygons. You can also save a polygon or an applied rule with its color, and load an existing save to draw it on canvas.">
+                <path fill-rule="evenodd" d="M8.837 1.626c-.246-.835-1.428-.835-1.674 0l-.094.319A1.873 1.873 0 0 1 4.377 3.06l-.292-.16c-.764-.415-1.6.42-1.184 1.185l.159.292a1.873 1.873 0 0 1-1.115 2.692l-.319.094c-.835.246-.835 1.428 0 1.674l.319.094a1.873 1.873 0 0 1 1.115 2.693l-.16.291c-.415.764.42 1.6 1.185 1.184l.292-.159a1.873 1.873 0 0 1 2.692 1.116l.094.318c.246.835 1.428.835 1.674 0l.094-.319a1.873 1.873 0 0 1 2.693-1.115l.291.16c.764.415 1.6-.42 1.184-1.185l-.159-.291a1.873 1.873 0 0 1 1.116-2.693l.318-.094c.835-.246.835-1.428 0-1.674l-.319-.094a1.873 1.873 0 0 1-1.115-2.692l.16-.292c.415-.764-.42-1.6-1.185-1.184l-.291.159A1.873 1.873 0 0 1 8.93 1.945l-.094-.319zm-2.633-.283c.527-1.79 3.065-1.79 3.592 0l.094.319a.873.873 0 0 0 1.255.52l.292-.16c1.64-.892 3.434.901 2.54 2.541l-.159.292a.873.873 0 0 0 .52 1.255l.319.094c1.79.527 1.79 3.065 0 3.592l-.319.094a.873.873 0 0 0-.52 1.255l.16.292c.893 1.64-.902 3.434-2.541 2.54l-.292-.159a.873.873 0 0 0-1.255.52l-.094.319c-.527 1.79-3.065 1.79-3.592 0l-.094-.319a.873.873 0 0 0-1.255-.52l-.292.16c-1.64.893-3.433-.902-2.54-2.541l.159-.292a.873.873 0 0 0-.52-1.255l-.319-.094c-1.79-.527-1.79-3.065 0-3.592l.319-.094a.873.873 0 0 0 .52-1.255l-.16-.292c-.892-1.64.902-3.433 2.541-2.54l.292.159a.873.873 0 0 0 1.255-.52l.094-.319z"/>
+                <path fill-rule="evenodd" d="M8 5.754a2.246 2.246 0 1 0 0 4.492 2.246 2.246 0 0 0 0-4.492zM4.754 8a3.246 3.246 0 1 1 6.492 0 3.246 3.246 0 0 1-6.492 0z"/>
+              </svg>
+            <legend style="border-color: black;">Options (Hover Over Icons For Information):</legend>
+
+            <div id="colorOptions" class="colorOptions">
+
+                <legend>Colors:</legend>
+
+                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-card-image" fill="currentColor" xmlns="http://www.w3.org/2000/svg" id="backgroundIcon" style="margin-left: 5px;" data-toggle="popover" title="Background Color Information" data-trigger="hover"
+                data-content="Background color will change the color of the canvas.">
+                    <path fill-rule="evenodd" d="M14.5 3h-13a.5.5 0 0 0-.5.5v9c0 .013 0 .027.002.04V12l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094L15 9.499V3.5a.5.5 0 0 0-.5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13zm4.502 3.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                </svg>
+                <label for="background">Background Color: </label>
+                <input type="color" id="background" name="background" style="margin: 10px">
+                <br>
+
+                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-brush" fill="currentColor" xmlns="http://www.w3.org/2000/svg" id="brushIcon" style="margin-left: 5px;" data-toggle="popover" title="Brush Color Information" data-trigger="hover"
+                data-content="Brush color will change the color of the brush, and each vertex drawn by it will have that color. Edges will have mix colors of their respective 2 vertices.">
+                    <path fill-rule="evenodd" d="M15.825.12a.5.5 0 0 1 .132.584c-1.53 3.43-4.743 8.17-7.095 10.64a6.067 6.067 0 0 1-2.373 1.534c-.018.227-.06.538-.16.868-.201.659-.667 1.479-1.708 1.74a8.117 8.117 0 0 1-3.078.132 3.658 3.658 0 0 1-.563-.135 1.382 1.382 0 0 1-.465-.247.714.714 0 0 1-.204-.288.622.622 0 0 1 .004-.443c.095-.245.316-.38.461-.452.393-.197.625-.453.867-.826.094-.144.184-.297.287-.472l.117-.198c.151-.255.326-.54.546-.848.528-.739 1.2-.925 1.746-.896.126.007.243.025.348.048.062-.172.142-.38.238-.608.261-.619.658-1.419 1.187-2.069 2.175-2.67 6.18-6.206 9.117-8.104a.5.5 0 0 1 .596.04zM4.705 11.912a1.23 1.23 0 0 0-.419-.1c-.247-.013-.574.05-.88.479a11.01 11.01 0 0 0-.5.777l-.104.177c-.107.181-.213.362-.32.528-.206.317-.438.61-.76.861a7.127 7.127 0 0 0 2.657-.12c.559-.139.843-.569.993-1.06a3.121 3.121 0 0 0 .126-.75l-.793-.792zm1.44.026c.12-.04.277-.1.458-.183a5.068 5.068 0 0 0 1.535-1.1c1.9-1.996 4.412-5.57 6.052-8.631-2.591 1.927-5.566 4.66-7.302 6.792-.442.543-.796 1.243-1.042 1.826a11.507 11.507 0 0 0-.276.721l.575.575zm-4.973 3.04l.007-.005a.031.031 0 0 1-.007.004zm3.582-3.043l.002.001h-.002z"/>
+                </svg>
+                <label for="brush">Brush Color: </label>
+                <input type="color" id="brush" name="brush" style="margin: 10px">
+                <br>
+
+                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-bricks" fill="currentColor" xmlns="http://www.w3.org/2000/svg" id="sfcIcon" style="margin-left: 5px;" data-toggle="popover" title="Polygon Color Information" data-trigger="hover"
+                data-content="Polygon Color will change the color of the drawn polygon. DISCLAIMER: If you used different brush colors for the vertices of your polygon, changing this polygon color will override all the colors of the vertices and your polygon will have this single color.">
+                    <path fill-rule="evenodd" d="M0 .5A.5.5 0 0 1 .5 0h15a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5H14v2h1.5a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5H14v2h1.5a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5H.5a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5H2v-2H.5a.5.5 0 0 1-.5-.5v-3A.5.5 0 0 1 .5 6H2V4H.5a.5.5 0 0 1-.5-.5v-3zM3 4v2h4.5V4H3zm5.5 0v2H13V4H8.5zM3 10v2h4.5v-2H3zm5.5 0v2H13v-2H8.5zM1 1v2h3.5V1H1zm4.5 0v2H15V1H5.5zM1 7v2h3.5V7H1zm4.5 0v2h5V7h-5zm6 0v2H15V7h-3.5zM1 13v2h3.5v-2H1zm4.5 0v2h5v-2h-5zm6 0v2H15v-2h-3.5z"/>
+                </svg>
+                <label for="polygonColor">Polygon Color: </label>
+                <input type="color" id="polygonColor" name="polygonColor" style="margin: 10px">
+                <br>
+
+            </div>
+
+            <div id="drawOptions" class="drawOptions">
+
+                <legend>Polygon and Rule Options:</legend>
+
+                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-bucket" fill="currentColor" xmlns="http://www.w3.org/2000/svg" data-toggle="popover" title="Fill Information" data-trigger="hover" data-placement="top"
+                data-content="When this checkbox is checked, the drawn polygon will be filled with the mix of its vertices' colors. DISCLAIMER: If you apply a koch rule to your polygon, it will not be filled.">
+                    <path fill-rule="evenodd" d="M2.522 5H2a.5.5 0 0 0-.494.574l1.372 9.149A1.5 1.5 0 0 0 4.36 16h7.278a1.5 1.5 0 0 0 1.483-1.277l1.373-9.149A.5.5 0 0 0 14 5h-.522A5.5 5.5 0 0 0 2.522 5zm1.005 0h8.945a4.5 4.5 0 0 0-8.945 0zm9.892 1H2.581l1.286 8.574A.5.5 0 0 0 4.36 15h7.278a.5.5 0 0 0 .494-.426L13.42 6z"/>
+                  </svg>
+                <label for="fill">Fill Polygon: </label>
+                <input type="checkbox" id="fill" name="fill" value="Fill" style="margin: 10px">
+                <br>
+                
+                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-sliders" fill="currentColor" xmlns="http://www.w3.org/2000/svg" data-toggle="popover" title="Iteration Information" data-trigger="hover" data-placement="top"
+                data-content="This slider will decide how much the koch curve rule will be applied recursively to each edge of the polygon. It will be the deciding factor of how deep your koch curve goes. DISCLAIMER: Higher iterations will need more time to complete.">
+                    <path fill-rule="evenodd" d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3h9.05zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8h2.05zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1h9.05z"/>
+                  </svg>
+                <label for="range">Iterations: </label>    
+                <div class="range-wrap">
+                    <div class="range-value" id="rangeV"></div>  
+                    <input id="range" type="range" min="1" max="6" value="3" step="1">
+                </div>  
+                <button type="button" class="btn btn-primary" style="float: left;" id="applyRule">Apply Rule</button>
+                <button type="button" class="btn btn-danger" style="float: right;" id="deletePolygon">Delete Polygon</button>
+                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-info-circle" style="position: relative; top: 10px; left: 5px; float: left;" fill="currentColor" xmlns="http://www.w3.org/2000/svg" data-toggle="popover" title="Apply Rule Information" data-trigger="hover" data-placement="top"
+                data-content="This button will apply the koch curve rule to your drawn polygon with the amount of times you decided on your iterations slider."> 
+                    <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M8.93 6.588l-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588z"/>
+                    <circle cx="8" cy="4.5" r="1"/>
+                </svg>
+                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-info-circle" style="position: relative; top: 10px; right: 5px; float: right;" fill="currentColor" xmlns="http://www.w3.org/2000/svg" data-toggle="popover" title="Delete Polygon Information" data-trigger="hover" data-placement="top"
+                data-content="This button will delete your polygon, if you have drawn any."> 
+                    <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M8.93 6.588l-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588z"/>
+                    <circle cx="8" cy="4.5" r="1"/>
+                </svg>
+
+            </div>
+
+            <div id="fileOptions" class="fileOptions">
+
+                <legend>File Save or Load:</legend>
+
+                <p>You can Save and Load your drawings here.</p>
+                
+                <button type="button" class="btn btn-warning" style="float: left;" id="save">Save</button>
+                <button type="button" class="btn btn-success" style="float: right;" id="load">Load</button>
+                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-info-circle" style="position: relative; top: 10px; left: 5px; float: left;" fill="currentColor" xmlns="http://www.w3.org/2000/svg" data-toggle="popover" title="Save Information" data-trigger="hover" data-placement="top"
+                data-content="This button allows you to save your drawn polygon or your applied koch curve. If you have done one of these, you can download your save file and upload it later to pre-draw it."> 
+                    <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M8.93 6.588l-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588z"/>
+                    <circle cx="8" cy="4.5" r="1"/>
+                </svg>
+
+                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-info-circle" style="position: relative; top: 10px; right: 5px; float: right;" fill="currentColor" xmlns="http://www.w3.org/2000/svg" data-toggle="popover" title="Load Information" data-trigger="hover" data-placement="top"
+                data-content="This button allows you to upload your previously saved polygons or applied koch curves. They will reserve their coordinates and vertex/polygon colors."> 
+                    <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M8.93 6.588l-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588z"/>
+                    <circle cx="8" cy="4.5" r="1"/>
+                </svg>
+            </div>
+        </div>
+
+        
+        
+        <script>
+            $(document).ready(function(){
+              $('[data-toggle="popover"]').popover();
+            });
+        </script>
+    </body>
+</html>
